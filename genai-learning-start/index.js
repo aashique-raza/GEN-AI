@@ -12,33 +12,42 @@ const ai = new GoogleGenAI({
 // console.log('Gemini CLI started.');
 // console.log("Type your question. Type 'exit' to quit.");
 
-async function aiResponse(input){
-   
-    try {
-        const response = await ai.models.generateContent({
+async function aiResponse(prompt) {
+  try {
+    const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-lite',
-      contents: input,
+      contents: prompt,
     });
 
     console.log('\nAI:');
     console.log(response.text);
-    } catch (error) {
-        console.log('Error',error.message)
-    }
+  } catch (error) {
+    console.log('Error:', error.message);
+  }
 }
 
- async function startChat(){
+async function startChat() {
   const rl = readline.createInterface({ input, output });
   const userInput = await rl.question('\nYou: ');
 
-    if (!userInput.trim()) {
-    console.log('Please type something.');
-    
+  
+  if (userInput.toLowerCase() === 'exit') {
+    console.log('Chat closed.');
+    rl.close();
+    return;
   }
 
-   await aiResponse(userInput)
-   startChat()
+  if (!userInput.trim()) {
+    console.log('Please type something.');
+    return startChat();
+  }
+
+  await aiResponse(userInput);
+
+  return startChat();
 }
 
-startChat()
+console.log('Gemini CLI started.');
+console.log("Type your question. Type 'exit' to quit.");
 
+startChat();
