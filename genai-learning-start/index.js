@@ -10,6 +10,72 @@ const ai = new GoogleGenAI({
 
 
 let mode = 'simple'
+let style = 'normal';
+
+
+
+function buildSystemInstruction() {
+  if (style === 'normal') {
+    return `
+You are a helpful AI assistant.
+Answer clearly and correctly.
+`;
+  }
+
+  if (style === 'short') {
+    return `
+You are a concise AI assistant.
+Rules:
+- Keep answers short
+- No long explanation
+- Give direct answer first
+`;
+  }
+
+  if (style === 'detailed') {
+    return `
+You are a detailed teacher.
+Rules:
+- Explain step by step
+- Use examples
+- Explain why, not only what
+`;
+  }
+
+  if (style === 'strict') {
+    return `
+You are a direct technical mentor.
+Rules:
+- No motivational fluff
+- Be blunt and practical
+- Point out mistakes clearly
+- Focus on what works
+`;
+  }
+
+  if (style === 'teacher') {
+    return `
+You are a beginner-friendly MERN stack teacher.
+Rules:
+- Use simple English
+- Explain like teaching a junior developer
+- Use practical examples
+`;
+  }
+
+  if (style === 'interviewer') {
+    return `
+You are a senior technical interviewer.
+Rules:
+- Answer in interview-ready format
+- Mention practical project usage
+- Keep the explanation professional
+`;
+  }
+
+  return 'You are a helpful AI assistant.';
+}
+
 
 function buildPrompt(userInput) {
   if (mode === 'simple') {
@@ -97,6 +163,9 @@ async function aiResponse(prompt) {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-lite',
       contents: finalPrompt,
+      config: {
+        systemInstruction: buildSystemInstruction(),
+      },
     });
 
     console.log('\nAI:');
@@ -124,10 +193,26 @@ Current mode: ${mode}
 }
 
 
+function showStyles() {
+  console.log(`
+Available styles:
+
+/style normal       → default helpful answer
+/style short        → short and direct
+/style detailed     → deep step-by-step explanation
+/style strict       → blunt technical mentor style
+/style teacher      → beginner-friendly teacher
+/style interviewer  → senior interviewer style
+
+Current style: ${style}
+`);
+}
+
 
 async function startChat() {
   const rl = readline.createInterface({ input, output });
   const userInput = await rl.question('\nYou: ');
+   const command = userInput.trim().toLowerCase();
 
   
   if (userInput.toLowerCase() === 'exit') {
@@ -136,13 +221,16 @@ async function startChat() {
     return;
   }
 
-  if (!userInput.trim()) {
-    console.log('Please type something.');
-    return startChat();
-  }
+ 
 
     if (userInput === '/modes') {
     showModes();
+    return startChat();
+  }
+
+
+  if (command === '/styles') {
+    showStyles();
     return startChat();
   }
 
@@ -161,6 +249,21 @@ async function startChat() {
     return startChat();
   }
 
+   if (command.startsWith('/style ')) {
+    const selectedStyle = command.split(' ')[1];
+
+    const allowedStyles = ['normal', 'short', 'detailed', 'strict', 'teacher', 'interviewer'];
+
+    if (!allowedStyles.includes(selectedStyle)) {
+      console.log('Invalid style. Type /styles to see available styles.');
+      return startChat();
+    }
+
+    style = selectedStyle;
+    console.log(`Style changed to: ${style}`);
+    return startChat();
+  }
+
    if (!userInput.trim()) {
     console.log('Please type something.');
     return startChat();
@@ -174,5 +277,6 @@ async function startChat() {
 console.log('Gemini CLI started.');
 console.log("Type your question. Type 'exit' to quit.");
 console.log("Type '/modes' to see prompt modes.");
+console.log("Type '/styles' to see response styles.");
 
 startChat();
