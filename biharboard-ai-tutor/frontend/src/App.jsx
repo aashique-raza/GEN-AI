@@ -11,49 +11,71 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = useCallback(async (text) => {
-    if (!text.trim() || !classLevel) return;
+ const handleSendMessage = useCallback(
+  async (text) => {
+    const userText = text.trim();
 
-    // 1. Add user message
-    const newUserMsg = { role: 'user', text };
+    if (isLoading || !userText || !classLevel) return;
+
+    const newUserMsg = {
+      role: "user",
+      text: userText,
+    };
+
     setMessages((prev) => [...prev, newUserMsg]);
     setIsLoading(true);
 
-    // 2. Prepare history (last 6 messages)
     const history = messages
-      .slice(-6) // Take last 6
-      .map(m => ({
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .filter((m) => !m.isError)
+      .slice(-6)
+      .map((m) => ({
         role: m.role,
-        text: m.text
+        text: m.text,
       }));
 
-    // 3. Call API
-    const response = await sendChatMessage(classLevel, text, history);
+    try {
+      const response = await sendChatMessage(classLevel, userText, history);
 
-    if (response.success) {
-      // Success: Add assistant answer
+      if (response.success) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            text: response.data.answer,
+            subject: response.data.subject,
+            topic: response.data.topic,
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            text:
+              response.displayMessage ||
+              response.errors?.reason ||
+              response.message ||
+              "Something went wrong.",
+            isError: true,
+          },
+        ]);
+      }
+    } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
-          role: 'assistant',
-          text: response.data.answer,
-          subject: response.data.subject,
-          topic: response.data.topic
-        }
+          role: "assistant",
+          text: "Network error. Please make sure the backend is running.",
+          isError: true,
+        },
       ]);
-    } else {
-      // Error: Show backend error message
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'error',
-          text: response.message
-        }
-      ]);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-  }, [classLevel, messages]);
+  },
+  [classLevel, messages, isLoading]
+);
 
   const handleClassSelect = (level) => {
     setClassLevel(level);

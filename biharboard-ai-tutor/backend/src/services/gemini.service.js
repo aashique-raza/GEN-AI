@@ -19,7 +19,7 @@ const cleanJsonResponse = (text) => {
     .trim();
 };
 
- export const classifyStudentMessage = async ({
+export const classifyStudentMessage = async ({
   classLevel,
   message,
   history = [],
@@ -36,12 +36,23 @@ The assistant is allowed to answer ONLY:
 - Bihar Board exam preparation questions
 - Bihar Board textbook/book/chapter based questions
 - Class 10 or Class 12 subject explanation questions
+- Bihar Board Class 10 or Class 12 exam paper requests
+- Previous year paper requests
+- Model paper requests
+- Sample paper requests
+- Important question requests
+- Year-specific Bihar Board paper requests
 - Follow-up questions that clearly continue a previous allowed academic topic
+
+Important exam-paper rule:
+If the student asks for "2026 paper", "this year paper", "exam paper chahiye", "question paper chahiye", "model paper", or "previous year paper" for Bihar Board Class 10 or Class 12, classify it as allowed.
+Do not reject it only because it asks for an exam paper.
+Reason should be: "Exam paper request. Exact official paper requires verified source."
 
 The assistant must reject:
 - coding/programming
 - job/career/resume
-- politics
+- politics unrelated to syllabus
 - movies/songs
 - health/diet/gym
 - finance/trading/crypto
@@ -65,9 +76,9 @@ Return ONLY valid JSON. No markdown. No explanation.
 JSON format:
 {
   "isAllowed": true,
-  "subject": "Science",
-  "topic": "Photosynthesis",
-  "reason": "Academic Class 10 Science question"
+  "subject": "Mathematics",
+  "topic": "Bihar Board 2026 Math Exam Paper",
+  "reason": "Exam paper request. Exact official paper requires verified source."
 }
 
 If rejected:
@@ -75,7 +86,8 @@ If rejected:
   "isAllowed": false,
   "subject": null,
   "topic": null,
-  "reason": "Out of scope"
+  "reason": "Out of scope",
+  "studentMessage": "Sorry, I can only answer Class 10 and Class 12 Bihar Board syllabus, exam, and book-related questions."
 }
 `;
 
@@ -162,7 +174,14 @@ Answer rules:
 - Agar student asks for short answer, give short answer
 - Agar student asks for notes, give notes format
 - Agar student asks for MCQ, give MCQs with answers
-- Agar out of scope hai: fixed refusal message do
+
+Exam paper rule:
+- If student asks for exact official current-year paper, board paper, or PDF, do not invent it.
+- Do not claim you have the official paper unless it is provided in context.
+- Say clearly: "Mere paas official verified paper/source available nahi hai."
+- Then offer: model paper, important questions, previous-year style practice set, or chapter-wise questions.
+
+Agar out of scope hai: fixed refusal message do
 `;
 };
 
@@ -188,7 +207,6 @@ export const generateBiharBoardAnswer = async ({
 
   return response.text;
 };
-
 
 const formatHistory = (history = []) => {
   if (!Array.isArray(history) || history.length === 0) {
