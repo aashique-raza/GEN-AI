@@ -12,7 +12,39 @@ const getBestErrorMessage = (result) => {
     result?.message ||
     "Something went wrong. Please try again."
   );
+
 };
+
+function getSafeErrorMessage(error) {
+  const raw =
+    error?.message ||
+    error?.error?.message ||
+    error?.response?.data?.message ||
+    JSON.stringify(error);
+
+  const text = String(raw).toLowerCase();
+
+  if (
+    text.includes('quota') ||
+    text.includes('resource_exhausted') ||
+    text.includes('429') ||
+    text.includes('rate limit')
+  ) {
+    return 'AI service ki daily limit exceed ho gayi hai. Thodi der baad try karo ya API key/model change karo.';
+  }
+
+  if (text.includes('network') || text.includes('failed to fetch')) {
+    return 'Network problem hai. Internet connection check karo aur dobara try karo.';
+  }
+
+  if (text.includes('500') || text.includes('internal')) {
+    return 'Server side problem hai. Thodi der baad try karo.';
+  }
+
+  return 'Kuch technical problem aa gayi hai. Dobara try karo.';
+}
+
+
 
 export async function sendChatMessage(classLevel, message, history = []) {
   try {
@@ -72,15 +104,11 @@ export async function sendChatMessage(classLevel, message, history = []) {
       statusCode: response.status,
     };
   } catch (error) {
-    console.error("Chat API Error:", error);
+    console.error('Chat API Error:', error);
 
-    return {
-      success: false,
-      message: "Network error. Please make sure the backend is running.",
-      displayMessage: "Network error. Please make sure the backend is running.",
-      errors: {
-        reason: error.message,
-      },
-    };
+  return {
+    success: false,
+    message: getSafeErrorMessage(error),
+  };
   }
 }
