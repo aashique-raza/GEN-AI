@@ -1,20 +1,28 @@
 {
-  "name": "rag-basic",
+  "name": "rag-node-basic",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Basic RAG system in Node.js using Gemini",
+  "type": "module",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "load": "node src/load-documents.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "rag",
+    "nodejs",
+    "gemini",
+    "embeddings",
+    "vector-search"
+  ],
+  "author": "Farhan Raza",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@google/genai": "^1.51.0",
-    "dotenv": "^17.4.2"
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.9"
   }
 }
