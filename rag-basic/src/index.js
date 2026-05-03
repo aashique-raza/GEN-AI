@@ -4,7 +4,7 @@ import { stdin as input, stdout as output } from "node:process";
 import { createRagSystem, askRag } from "./rag/ragPipeline.js";
 
 async function startCli() {
-  console.log("Building RAG system...");
+//   console.log("Building RAG system...");
 
   const ragSystem = await createRagSystem({
     filePath: "data/class-10/science/life-processes.txt",
