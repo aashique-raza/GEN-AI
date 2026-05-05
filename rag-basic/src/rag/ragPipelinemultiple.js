@@ -1,8 +1,12 @@
 import { loadTxtDocuments } from "../loaders/documentLoader.js";
 import { splitDocumentsIntoChunks } from "../splitters/textSplitter.js";
-import { generateEmbedding } from "../embeddings/embeddingService.js";
-import { MemoryVectorStore } from "../vectorStore/memoryVectorStore.js";
-import { geminiModel } from "../config/gemini.js";
+import {
+  createEmbedding,
+  createEmbeddings,
+} from "../embeddings/embeddingService.js";
+// import { MemoryVectorStore } from "../vectorStore/memoryVectorStore.js";
+import { MemoryVectorStore } from "../vectorStore/memoryVectorStoreMultiple.js";
+import { ai } from "../config/gemini.js";
 
 export async function createRagSystem({
   dataDir = "data",
@@ -24,9 +28,9 @@ export async function createRagSystem({
   console.log("Generating embeddings...");
 
   for (const chunk of chunks) {
-    const embedding = await generateEmbedding(chunk.text);
+    const embedding = await createEmbedding(chunk.text);
 
-    vectorStore.add({
+    vectorStore.addDocument({
       text: chunk.text,
       embedding,
       metadata: chunk.metadata,
@@ -34,15 +38,17 @@ export async function createRagSystem({
   }
 
   console.log("Vector store ready.");
+  console.log('vector store',vectorStore)
 
   return {
-    vectorStore,
-    minScore,
-  };
+  vectorStore,
+  totalChunks: vectorStore.documents.length,
+  minScore,
+};
 }
 
 export async function askRag(ragSystem, question) {
-  const questionEmbedding = await generateEmbedding(question);
+  const questionEmbedding = await createEmbedding(question);
 
   const results = ragSystem.vectorStore.similaritySearch(questionEmbedding, {
     topK: 3,
@@ -80,10 +86,13 @@ Question:
 ${question}
 `;
 
-  const response = await geminiModel.generateContent(prompt);
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+  });
 
   return {
-    answer: response.response.text(),
+    answer: response.text,
     sources: results.map((item) => ({
       score: item.score,
       metadata: item.metadata,
