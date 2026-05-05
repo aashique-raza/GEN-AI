@@ -6,7 +6,8 @@ import {
 } from "../embeddings/embeddingService.js";
 // import { MemoryVectorStore } from "../vectorStore/memoryVectorStore.js";
 import { MemoryVectorStore } from "../vectorStore/memoryVectorStoreMultiple.js";
-import { ai } from "../config/gemini.js";
+// import { ai } from "../config/gemini.js";
+import { generateWithGroq } from "../llm/groqClient.js";
 
 export async function createRagSystem({
   dataDir = "data",
@@ -86,17 +87,17 @@ Question:
 ${question}
 `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: prompt,
-  });
+  const answer = await generateWithGroq({
+  question,
+  context,
+});
 
-  return {
-    answer: response.text,
-    sources: results.map((item) => ({
-      score: item.score,
-      metadata: item.metadata,
-      text: item.text,
-    })),
-  };
+return {
+  answer,
+  sources: results.map((item) => ({
+    score: item.score,
+    metadata: item.metadata,
+    text: item.text,
+  })),
+};
 }

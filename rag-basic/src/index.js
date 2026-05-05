@@ -3,6 +3,7 @@ import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 // import { createRagSystem, askRag } from "./rag/ragPipeline.js";
 import {createRagSystem, askRag} from './rag/ragPipelinemultiple.js'
+import { generateWithGroq } from "./llm/groqClient.js";
 
 async function startCli() {
   //   console.log("Building RAG system...");
