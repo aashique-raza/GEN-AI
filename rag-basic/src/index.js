@@ -4,16 +4,23 @@ import { stdin as input, stdout as output } from "node:process";
 import { createRagSystem, askRag } from "./rag/ragPipeline.js";
 
 async function startCli() {
-//   console.log("Building RAG system...");
+  //   console.log("Building RAG system...");
+
+  // for single document load------
+  // const ragSystem = await createRagSystem({
+  //   filePath: "data/class-10/science/life-processes.txt",
+  //   metadata: {
+  //     classLevel: "10",
+  //     subject: "science",
+  //     chapter: "life-processes",
+  //     board: "bihar-board",
+  //   },
+  // });
 
   const ragSystem = await createRagSystem({
-    filePath: "data/class-10/science/life-processes.txt",
-    metadata: {
-      classLevel: "10",
-      subject: "science",
-      chapter: "life-processes",
-      board: "bihar-board",
-    },
+    dataDir: "data",
+    paragraphsPerChunk: 5,
+    minScore: 0.55,
   });
 
   console.log("RAG system ready.");
