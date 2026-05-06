@@ -27,11 +27,11 @@ async function startCli() {
   // });
 
   const ragSystem = await createRagSystem({
-     dataDir: "data",
-  paragraphsPerChunk: 1,
-  minScore: 0.55,
-  storagePath: "storage/vector-store.json",
-  forceRebuild: false,
+    dataDir: "data",
+    paragraphsPerChunk: 1,
+    minScore: 0.67,
+    storagePath: "storage/vector-store.json",
+    forceRebuild: false,
   });
 
   // console.log("RAG system ready.");
@@ -58,9 +58,13 @@ async function startCli() {
     }
 
     try {
-      
-
-      const result = await askRag(ragSystem, trimmedQuestion);
+      // {
+      //   metadataFilter: {
+      //     chapter: "life-processes",
+      //   },
+      // }
+      // const result = await askRag(ragSystem, trimmedQuestion);
+      const result = await askRag(ragSystem, trimmedQuestion, );
 
       console.log("\nAI:");
       console.log(result.answer);
@@ -83,7 +87,7 @@ async function startCli() {
       console.log("");
     } catch (error) {
       console.error("Error stack:");
-  console.error(error.stack);
+      console.error(error.stack);
     }
   }
 }

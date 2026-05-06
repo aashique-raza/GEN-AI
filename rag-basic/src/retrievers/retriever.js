@@ -5,6 +5,7 @@ export async function retrieveRelevantChunks({
   question,
   topK = 3,
   minScore = 0,
+  metadataFilter = {},
 } = {}) {
   if (!vectorStore) {
     throw new Error("Vector store is required");
@@ -16,10 +17,12 @@ export async function retrieveRelevantChunks({
 
   const questionEmbedding = await createEmbedding(question);
 
-  const results = vectorStore.similaritySearch(questionEmbedding, {
-    topK,
-    minScore,
-  });
+ const results = vectorStore.similaritySearch(questionEmbedding, {
+  topK,
+  minScore,
+  metadataFilter,
+  debug: true,
+});
 
   return results;
 }

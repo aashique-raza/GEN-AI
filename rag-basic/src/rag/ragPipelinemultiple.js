@@ -14,6 +14,11 @@ import {
 
 import { retrieveRelevantChunks } from "../retrievers/retriever.js";
 
+import {
+  buildContextFromSources,
+  formatSourcesForResponse,
+} from "../formatters/sourceFormatter.js";
+
 export async function createRagSystem({
   dataDir = "data",
   paragraphsPerChunk = 5,
@@ -32,7 +37,9 @@ export async function createRagSystem({
 
     vectorStore.addDocuments(savedDocuments);
 
-    console.log(`Loaded ${vectorStore.documents.length} chunk(s) from storage.`);
+    console.log(
+      `Loaded ${vectorStore.documents.length} chunk(s) from storage.`,
+    );
 
     return {
       vectorStore,
@@ -74,13 +81,14 @@ export async function createRagSystem({
   };
 }
 
-export async function askRag(ragSystem, question) {
+export async function askRag(ragSystem, question,options = {}) {
   const results = await retrieveRelevantChunks({
-    vectorStore: ragSystem.vectorStore,
-    question,
-    topK: 3,
-    minScore: ragSystem.minScore,
-  });
+  vectorStore: ragSystem.vectorStore,
+  question,
+  topK: options.topK ?? 3,
+  minScore: options.minScore ?? ragSystem.minScore,
+  metadataFilter: options.metadataFilter ?? {},
+});
 
   if (results.length === 0) {
     return {
@@ -89,18 +97,11 @@ export async function askRag(ragSystem, question) {
     };
   }
 
-  const context = results
-    .map((item, index) => {
-      return `Source ${index + 1}:
-Metadata: ${JSON.stringify(item.metadata)}
-Content:
-${item.text}`;
-    })
-    .join("\n\n---\n\n");
+  const context = buildContextFromSources(results);
 
-  console.log("\n--- CONTEXT SENT TO GROQ ---");
-  console.log(context);
-  console.log("--- END CONTEXT ---\n");
+  // console.log("\n--- CONTEXT SENT TO GROQ ---");
+  // console.log(context);
+  // console.log("--- END CONTEXT ---\n");
 
   const answer = await generateWithGroq({
     question,
@@ -109,10 +110,6 @@ ${item.text}`;
 
   return {
     answer,
-    sources: results.map((item) => ({
-      score: item.score,
-      metadata: item.metadata,
-      text: item.text,
-    })),
+    sources: formatSourcesForResponse(results),
   };
 }

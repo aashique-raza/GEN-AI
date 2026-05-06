@@ -19,41 +19,42 @@ export async function generateWithGroq({ question, context }) {
     model: GROQ_MODEL,
     temperature: 0,
     messages: [
-  {
-    role: "system",
-   content: `
+      {
+        role: "system",
+        content: `
+You are a strict RAG answer generator.
+
+Rules:
+1. Answer only from the provided context.
+2. Do not use outside knowledge.
+3. Do not explain your reasoning.
+4. Do not say phrases like:
+   - "Since the question asks..."
+   - "Based on the context..."
+   - "The answer is..."
+5. Do not repeat the same answer twice.
+6. If the answer is not found in the context, say exactly:
+   "I don't have enough information in the provided context."
+7. 7. Keep answers short, clear, and student-friendly, but include all directly relevant facts from the context.
+8. For definition questions:
+   - say what it is
+   - include its function/use if the context mentions it
+9. For comparison questions:
+   - define both items first
+   - then compare them in simple bullets
+`.trim(),
+      },
+      {
+        role: "user",
+        content: `
 Context:
 ${context}
 
 Question:
 ${question}
-
-Answer rules:
-1. If the question asks for comparison, first define each item using exact facts from context.
-2. Then write a simple comparison based only on those facts.
-3. Do not refuse if both items are present in the context.
-4. Do not add extra facts, categories, assumptions, or outside knowledge.
-5. Do not add words like "animals", "humans", or "different sources" unless directly stated in the context.
-6. Keep the answer short and clear.
 `.trim(),
-  },
-  {
-    role: "user",
-    content: `
-Context:
-${context}
-
-Question:
-${question}
-
-Answer rules:
-1. If the question asks for comparison, first define each item using context.
-2. Then write a simple comparison based only on those definitions.
-3. Do not refuse if both items are present in the context.
-4. Keep the answer short and clear.
-`.trim(),
-  },
-],
+      },
+    ],
   });
 
   return response.choices?.[0]?.message?.content?.trim() || "";
