@@ -9,11 +9,39 @@ import { MemoryVectorStore } from "../vectorStore/memoryVectorStoreMultiple.js";
 // import { ai } from "../config/gemini.js";
 import { generateWithGroq } from "../llm/groqClient.js";
 
+import {
+  fileExists,
+  saveVectorStore,
+  loadVectorStoreData,
+} from "../storage/vectorStoreStorage.js";
+
 export async function createRagSystem({
   dataDir = "data",
   paragraphsPerChunk = 5,
   minScore = 0.55,
+  storagePath = "storage/vector-store.json",
+  forceRebuild = false,
 } = {}) {
+  const vectorStore = new MemoryVectorStore();
+
+  const hasSavedVectorStore = await fileExists(storagePath);
+
+  if (hasSavedVectorStore && !forceRebuild) {
+    console.log("Loading vector store from storage...");
+
+    const savedDocuments = await loadVectorStoreData(storagePath);
+
+    vectorStore.addDocuments(savedDocuments);
+
+    console.log(`Loaded ${vectorStore.documents.length} chunk(s) from storage.`);
+
+    return {
+      vectorStore,
+      totalChunks: vectorStore.documents.length,
+      minScore,
+    };
+  }
+
   console.log("Loading documents...");
   const documents = await loadTxtDocuments(dataDir);
 
@@ -23,8 +51,6 @@ export async function createRagSystem({
   const chunks = splitDocumentsIntoChunks(documents, paragraphsPerChunk);
 
   console.log(`Created ${chunks.length} chunk(s).`);
-
-  const vectorStore = new MemoryVectorStore();
 
   console.log("Generating embeddings...");
 
@@ -39,13 +65,14 @@ export async function createRagSystem({
   }
 
   console.log("Vector store ready.");
-  console.log('vector store',vectorStore)
+
+  await saveVectorStore(vectorStore, storagePath);
 
   return {
-  vectorStore,
-  totalChunks: vectorStore.documents.length,
-  minScore,
-};
+    vectorStore,
+    totalChunks: vectorStore.documents.length,
+    minScore,
+  };
 }
 
 export async function askRag(ragSystem, question) {
@@ -72,32 +99,21 @@ ${item.text}`;
     })
     .join("\n\n---\n\n");
 
-  const prompt = `
-You are a helpful tutor.
-
-Answer the user's question using ONLY the provided context.
-
-If the answer is not present in the context, say:
-"I don't have enough information in the provided context."
-
-Context:
-${context}
-
-Question:
-${question}
-`;
+  console.log("\n--- CONTEXT SENT TO GROQ ---");
+  console.log(context);
+  console.log("--- END CONTEXT ---\n");
 
   const answer = await generateWithGroq({
-  question,
-  context,
-});
+    question,
+    context,
+  });
 
-return {
-  answer,
-  sources: results.map((item) => ({
-    score: item.score,
-    metadata: item.metadata,
-    text: item.text,
-  })),
-};
+  return {
+    answer,
+    sources: results.map((item) => ({
+      score: item.score,
+      metadata: item.metadata,
+      text: item.text,
+    })),
+  };
 }
