@@ -1,9 +1,6 @@
 import { loadTxtDocuments } from "../loaders/documentLoader.js";
 import { splitDocumentsIntoChunks } from "../splitters/textSplitter.js";
-import {
-  createEmbedding,
-  createEmbeddings,
-} from "../embeddings/embeddingService.js";
+import { createEmbedding } from "../embeddings/embeddingService.js";
 // import { MemoryVectorStore } from "../vectorStore/memoryVectorStore.js";
 import { MemoryVectorStore } from "../vectorStore/memoryVectorStoreMultiple.js";
 // import { ai } from "../config/gemini.js";
@@ -14,6 +11,8 @@ import {
   saveVectorStore,
   loadVectorStoreData,
 } from "../storage/vectorStoreStorage.js";
+
+import { retrieveRelevantChunks } from "../retrievers/retriever.js";
 
 export async function createRagSystem({
   dataDir = "data",
@@ -76,9 +75,9 @@ export async function createRagSystem({
 }
 
 export async function askRag(ragSystem, question) {
-  const questionEmbedding = await createEmbedding(question);
-
-  const results = ragSystem.vectorStore.similaritySearch(questionEmbedding, {
+  const results = await retrieveRelevantChunks({
+    vectorStore: ragSystem.vectorStore,
+    question,
     topK: 3,
     minScore: ragSystem.minScore,
   });
