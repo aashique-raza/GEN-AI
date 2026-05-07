@@ -5,8 +5,13 @@
   "main": "index.js",
   "types": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "chat": "node src/index.js",
+  "dev": "nodemon src/index.js",
+  "rag:index": "node src/rag/indexPipeline.js",
+  "rag:index:dev": "nodemon src/rag/indexPipeline.js",
+  "rag:ask": "node src/rag/queryPipeline.js",
+  "rag:ask:dev": "nodemon src/rag/queryPipeline.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,5 +22,8 @@
     "@langchain/textsplitters": "^1.0.1",
     "dotenv": "^17.4.2",
     "langchain": "^1.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
