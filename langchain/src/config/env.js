@@ -11,4 +11,5 @@ export const env = {
 
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   EMBEDDING_PROVIDER: process.env.EMBEDDING_PROVIDER || "gemini",
+  CHAT_HISTORY_LIMIT: Number(process.env.CHAT_HISTORY_LIMIT) || 6,
 };

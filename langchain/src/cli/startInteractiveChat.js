@@ -13,6 +13,7 @@ import {
   clearConversationHistory,
   getConversationHistory,
   getConversationHistoryStats,
+  getRecentConversationHistory,
 } from "../memory/conversationMemory.js";
 
 import { cleanUserInput } from "../utils/cleanUserInput.js";
@@ -233,8 +234,9 @@ export async function startInteractiveChat() {
     }
 
     try {
-      // * Get previous conversation history before current question.
-      const history = getConversationHistory();
+      // * Send only recent history to the model.
+      // * Full history is still saved, but model context stays controlled.
+      const history = getRecentConversationHistory(env.CHAT_HISTORY_LIMIT);
 
       // * Build messages using:
       // * system prompt + previous history + current user input.
@@ -268,6 +270,11 @@ export async function startInteractiveChat() {
           maxTokens: currentMaxTokens ?? "none",
           mode: currentMode,
           history: getConversationHistoryStats(),
+
+          // * Shows how many old messages were actually sent to model.
+          historyLimit: env.CHAT_HISTORY_LIMIT,
+          historySentToModel: history.length,
+
           latencyMs: debugInfo.latencyMs,
           contentLength: debugInfo.contentLength,
           responseMetadata: debugInfo.responseMetadata,

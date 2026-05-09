@@ -23,7 +23,7 @@ export function addAIMessage(content) {
 
 // * Return all saved conversation messages.
 export function getConversationHistory() {
-  return conversationHistory;
+  return [...conversationHistory];
 }
 
 // * Clear full conversation history.
@@ -38,4 +38,8 @@ export function getConversationHistoryStats() {
     userMessages: conversationHistory.filter((msg) => msg.role === "user").length,
     aiMessages: conversationHistory.filter((msg) => msg.role === "assistant").length,
   };
+}
+
+export function getRecentConversationHistory(limit = 6) {
+  return conversationHistory.slice(-limit);
 }
