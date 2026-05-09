@@ -15,6 +15,8 @@ import {
   getConversationHistoryStats,
 } from "../memory/conversationMemory.js";
 
+import { cleanUserInput } from "../utils/cleanUserInput.js";
+
 // * This function starts an interactive command-line chat.
 // * It lets us test model settings without restarting the app.
 export async function startInteractiveChat() {
@@ -74,7 +76,9 @@ export async function startInteractiveChat() {
 
   while (true) {
     const userInput = await rl.question("\nYou: ");
-    const cleanInput = userInput.trim();
+    // * Clean terminal input before command handling or model call.
+    // * This removes accidental prefixes like "You:".
+    const cleanInput = cleanUserInput(userInput);
 
     // ! Empty input should not call the model.
     if (!cleanInput) {
