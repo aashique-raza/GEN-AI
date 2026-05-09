@@ -1,5 +1,6 @@
 import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
+import { runModelCallWithDebug } from "../debug/modelCallDebug.js";
 
 import { env } from "../config/env.js";
 import { createChatModel } from "../providers/chatProvider.js";
@@ -11,6 +12,7 @@ import { getAvailableChatModes } from "../prompts/chatModes.js";
 export async function startInteractiveChat() {
   console.log("LangChain Interactive Chat Started");
   console.log("Type your question and press Enter.");
+  let debugMode = false;
   console.log("Commands:");
   console.log("  /temp 0          -> stable answer");
   console.log("  /temp 0.7        -> more natural answer");
@@ -22,6 +24,9 @@ export async function startInteractiveChat() {
   console.log("  /mode interviewer -> interview-style mode");
   console.log("  /mode concise    -> very short answer mode");
   console.log("  /modes           -> show available modes");
+  console.log("  /debug on       -> show model metadata after each answer");
+  console.log("  /debug off      -> hide model metadata");
+  console.log("  /mode genai      -> GenAI/LangChain/RAG mentor mode");
   console.log("  /config          -> show current model config");
   console.log("  exit             -> stop chat\n");
 
@@ -31,7 +36,7 @@ export async function startInteractiveChat() {
 
   // * Runtime prompt behavior mode.
   // * This affects system message, not model provider.
-  let currentMode = "tutor";
+ let currentMode = "genai";
 
   // * Create/recreate model with current model settings.
   function buildModel() {
@@ -49,12 +54,12 @@ export async function startInteractiveChat() {
 
   console.log("Current provider config:");
   console.log({
-    chatProvider: env.CHAT_PROVIDER,
-    groqModel: env.GROQ_MODEL,
-    embeddingProvider: env.EMBEDDING_PROVIDER,
+    provider: env.CHAT_PROVIDER,
+    model: env.GROQ_MODEL,
     temperature: currentTemperature,
     maxTokens: currentMaxTokens ?? "none",
     mode: currentMode,
+    debugMode,
   });
 
   while (true) {
@@ -160,7 +165,9 @@ export async function startInteractiveChat() {
       const nextMaxTokens = Number(tokenValue);
 
       if (Number.isNaN(nextMaxTokens)) {
-        console.log("Invalid token value. Example: /tokens 100 or /tokens none");
+        console.log(
+          "Invalid token value. Example: /tokens 100 or /tokens none",
+        );
         continue;
       }
 
@@ -176,17 +183,55 @@ export async function startInteractiveChat() {
       continue;
     }
 
+    // * Debug command: /debug on OR /debug off
+    if (cleanInput.startsWith("/debug")) {
+      const parts = cleanInput.split(" ");
+      const nextValue = parts[1];
+
+      // ! Only allow on/off values.
+      if (nextValue !== "on" && nextValue !== "off") {
+        console.log("Invalid debug command. Example: /debug on or /debug off");
+        continue;
+      }
+
+      // * Turn debug mode on/off.
+      debugMode = nextValue === "on";
+
+      console.log(`Debug mode: ${debugMode ? "ON" : "OFF"}`);
+      continue;
+    }
+
     try {
       // * Convert user input into LangChain messages using current mode.
       // * currentMode changes system prompt behavior.
       const messages = buildBasicChatMessages(cleanInput, currentMode);
 
-      // * Send messages to model.
-      const response = await model.invoke(messages);
+      // * Run model call with debug wrapper.
+      // * This gives us AIMessage response + timing/metadata.
+      const { response, debugInfo } = await runModelCallWithDebug({
+        model,
+        messages,
+      });
 
       // * Print final answer text.
       console.log("\nAI:");
       console.log(response.content);
+
+      // * Print debug info only when debug mode is ON.
+      if (debugMode) {
+        console.log("\n--- MODEL DEBUG ---");
+        console.log({
+          provider: env.CHAT_PROVIDER,
+          model: env.GROQ_MODEL,
+          temperature: currentTemperature,
+          maxTokens: currentMaxTokens ?? "none",
+          mode: currentMode,
+          latencyMs: debugInfo.latencyMs,
+          contentLength: debugInfo.contentLength,
+          responseMetadata: debugInfo.responseMetadata,
+          usageMetadata: debugInfo.usageMetadata,
+        });
+      }
     } catch (error) {
       // ! Clean provider/API/model error handling.
       console.error("\nModel call failed:");
