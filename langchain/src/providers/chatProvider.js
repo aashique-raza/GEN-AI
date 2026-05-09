@@ -1,30 +1,26 @@
 import { ChatGroq } from "@langchain/groq";
 import { env } from "../config/env.js";
 
-export function createChatModel(provider = env.CHAT_PROVIDER) {
-  if (provider === "groq") {
-    if (!env.GROQ_API_KEY) {
-      throw new Error("GROQ_API_KEY missing in .env");
-    }
+// * This function creates a chat model based on the active provider.
+// * options allows us to override model behavior like temperature.
+// TODO: Later we can add maxTokens, timeout, retries, etc.
+export function createChatModel(options = {}) {
+  // * Default temperature is 0 because we want stable answers for RAG learning.
+  const temperature = options.temperature ?? 0;
 
+  if (env.CHAT_PROVIDER === "groq") {
     return new ChatGroq({
+      // ! API key should come only from env. Never hard-code secrets.
       apiKey: env.GROQ_API_KEY,
+
+      // * Model name comes from .env so we can switch models without code changes.
       model: env.GROQ_MODEL,
-      temperature: 0,
+
+      // * Temperature controls randomness/creativity of model output.
+      temperature,
     });
   }
 
-  if (provider === "hf") {
-    throw new Error("Hugging Face chat provider not implemented yet.");
-  }
-
-  if (provider === "openrouter") {
-    throw new Error("OpenRouter chat provider not implemented yet.");
-  }
-
-  if (provider === "ollama") {
-    throw new Error("Ollama chat provider not implemented yet.");
-  }
-
-  throw new Error(`Unsupported CHAT_PROVIDER: ${provider}`);
+  // ! If provider is unsupported, fail clearly.
+  throw new Error(`Unsupported chat provider: ${env.CHAT_PROVIDER}`);
 }
