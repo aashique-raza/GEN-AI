@@ -2,25 +2,39 @@ import { ChatGroq } from "@langchain/groq";
 import { env } from "../config/env.js";
 
 // * This function creates a chat model based on the active provider.
-// * options allows us to override model behavior like temperature.
-// TODO: Later we can add maxTokens, timeout, retries, etc.
+// * options lets us control model behavior without hard-coding values.
+// TODO: Later we can add provider fallback: Groq -> Gemini -> HF -> Ollama.
 export function createChatModel(options = {}) {
-  // * Default temperature is 0 because we want stable answers for RAG learning.
+  // * Temperature controls randomness.
+  // * 0 = stable, focused, best for RAG.
   const temperature = options.temperature ?? 0;
+
+  // * maxTokens controls maximum output length.
+  // * undefined means we are not forcing a custom output token limit.
+  const maxTokens = options.maxTokens ?? undefined;
+
+  // * maxRetries controls how many times LangChain retries failed API calls.
+  const maxRetries = options.maxRetries ?? 2;
 
   if (env.CHAT_PROVIDER === "groq") {
     return new ChatGroq({
-      // ! API key should come only from env. Never hard-code secrets.
+      // ! Never hard-code API keys.
       apiKey: env.GROQ_API_KEY,
 
-      // * Model name comes from .env so we can switch models without code changes.
+      // * Model name comes from .env for easy switching.
       model: env.GROQ_MODEL,
 
-      // * Temperature controls randomness/creativity of model output.
+      // * Controls randomness/creativity.
       temperature,
+
+      // * Controls maximum answer length.
+      maxTokens,
+
+      // * Retries temporary provider/network failures.
+      maxRetries,
     });
   }
 
-  // ! If provider is unsupported, fail clearly.
+  // ! Clear error if unsupported provider is selected.
   throw new Error(`Unsupported chat provider: ${env.CHAT_PROVIDER}`);
 }

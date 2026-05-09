@@ -6,37 +6,46 @@ import { createChatModel } from "../providers/chatProvider.js";
 import { buildBasicChatMessages } from "../prompts/basicChatMessages.js";
 
 // * This function starts an interactive command-line chat.
-// * It keeps the app running so we can ask many questions without restarting.
+// * It keeps the app running so we can test model settings without restarting.
 export async function startInteractiveChat() {
   console.log("LangChain Interactive Chat Started");
   console.log("Type your question and press Enter.");
   console.log("Commands:");
-  console.log("  /temp 0      -> stable answer");
-  console.log("  /temp 0.7    -> more natural answer");
-  console.log("  /temp 1      -> more random answer");
-  console.log("  /config      -> show current model config");
-  console.log("  exit         -> stop chat\n");
+  console.log("  /temp 0        -> stable answer");
+  console.log("  /temp 0.7      -> more natural answer");
+  console.log("  /tokens 50     -> short answer limit");
+  console.log("  /tokens 150    -> longer answer limit");
+  console.log("  /tokens none   -> remove custom token limit");
+  console.log("  /config        -> show current model config");
+  console.log("  exit           -> stop chat\n");
 
-  // * CLI state: current temperature used for model calls.
-  // * Start with 0 because RAG needs stable grounded output.
+  // * Runtime model settings.
+  // * These can change while CLI is running.
   let currentTemperature = 0;
+  let currentMaxTokens = undefined;
 
-  // * Create model once using current temperature.
-  // ! We recreate model only when temperature changes, not for every question.
-  let model = createChatModel({
-    temperature: currentTemperature,
-  });
+  // * Helper function to create/recreate model with current settings.
+  // ! Recreate model only when config changes, not for every question.
+  function buildModel() {
+    return createChatModel({
+      temperature: currentTemperature,
+      maxTokens: currentMaxTokens,
+    });
+  }
 
-  // * Create readline interface for terminal input/output.
+  // * Create initial model.
+  let model = buildModel();
+
+  // * Create terminal input/output interface.
   const rl = readline.createInterface({ input, output });
 
-  // * Print initial provider config.
   console.log("Current provider config:");
   console.log({
     chatProvider: env.CHAT_PROVIDER,
     groqModel: env.GROQ_MODEL,
     embeddingProvider: env.EMBEDDING_PROVIDER,
     temperature: currentTemperature,
+    maxTokens: currentMaxTokens ?? "none",
   });
 
   while (true) {
@@ -55,23 +64,24 @@ export async function startInteractiveChat() {
       break;
     }
 
-    // * Show current model config without calling the LLM.
+    // * Show current config.
     if (cleanInput === "/config") {
       console.log("Current model config:");
       console.log({
         provider: env.CHAT_PROVIDER,
         model: env.GROQ_MODEL,
         temperature: currentTemperature,
+        maxTokens: currentMaxTokens ?? "none",
       });
       continue;
     }
 
-    // * Temperature command format: /temp 0.7
+    // * Temperature command: /temp 0.7
     if (cleanInput.startsWith("/temp")) {
       const parts = cleanInput.split(" ");
       const nextTemperature = Number(parts[1]);
 
-      // ! Reject invalid temperature values.
+      // ! Reject invalid temperature.
       if (Number.isNaN(nextTemperature)) {
         console.log("Invalid temperature. Example: /temp 0.7");
         continue;
@@ -83,15 +93,45 @@ export async function startInteractiveChat() {
         continue;
       }
 
-      // * Update CLI state.
       currentTemperature = nextTemperature;
-
-      // * Recreate model with new temperature.
-      model = createChatModel({
-        temperature: currentTemperature,
-      });
+      model = buildModel();
 
       console.log(`Temperature changed to ${currentTemperature}`);
+      continue;
+    }
+
+    // * Token command: /tokens 50 OR /tokens none
+    if (cleanInput.startsWith("/tokens")) {
+      const parts = cleanInput.split(" ");
+      const tokenValue = parts[1];
+
+      // * Remove custom token limit.
+      if (tokenValue === "none") {
+        currentMaxTokens = undefined;
+        model = buildModel();
+
+        console.log("Max token limit removed.");
+        continue;
+      }
+
+      const nextMaxTokens = Number(tokenValue);
+
+      // ! Reject invalid token values.
+      if (Number.isNaN(nextMaxTokens)) {
+        console.log("Invalid token value. Example: /tokens 100 or /tokens none");
+        continue;
+      }
+
+      // ! Very tiny token limit can cut answers badly.
+      if (nextMaxTokens < 10) {
+        console.log("Max tokens should be at least 10.");
+        continue;
+      }
+
+      currentMaxTokens = nextMaxTokens;
+      model = buildModel();
+
+      console.log(`Max tokens changed to ${currentMaxTokens}`);
       continue;
     }
 
@@ -99,10 +139,10 @@ export async function startInteractiveChat() {
       // * Convert user input into LangChain messages.
       const messages = buildBasicChatMessages(cleanInput);
 
-      // * Send messages to chat model.
+      // * Send messages to model.
       const response = await model.invoke(messages);
 
-      // * Print only final answer content.
+      // * Print final answer text.
       console.log("\nAI:");
       console.log(response.content);
     } catch (error) {
