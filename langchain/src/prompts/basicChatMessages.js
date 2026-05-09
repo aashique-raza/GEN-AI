@@ -1,16 +1,16 @@
-// * This function builds messages for a basic chat model call.
-// * LangChain chat models expect an array of messages.
-// ! Role names must be correct: "system" and "user".
+import { getSystemPromptByMode } from "./chatModes.js";
 
-export function buildBasicChatMessages(userInput) {
+// * This function builds messages for a basic chat model call.
+// * LangChain chat models expect messages in role/content format.
+// ! role must be "system" and "user".
+export function buildBasicChatMessages(userInput, mode = "tutor") {
   return [
     {
       role: "system",
 
-      // * System message controls model behavior.
-      // * Later we will experiment with different system prompts.
-      content:
-        "You are a simple Hinglish AI tutor. Answer clearly, briefly, and step by step.",
+      // * System prompt controls model behavior.
+      // * Example modes: tutor, strict, interviewer, concise.
+      content: getSystemPromptByMode(mode),
     },
     {
       role: "user",
