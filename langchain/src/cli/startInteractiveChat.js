@@ -7,6 +7,14 @@ import { createChatModel } from "../providers/chatProvider.js";
 import { buildBasicChatMessages } from "../prompts/basicChatMessages.js";
 import { getAvailableChatModes } from "../prompts/chatModes.js";
 
+import {
+  addAIMessage,
+  addUserMessage,
+  clearConversationHistory,
+  getConversationHistory,
+  getConversationHistoryStats,
+} from "../memory/conversationMemory.js";
+
 // * This function starts an interactive command-line chat.
 // * It lets us test model settings without restarting the app.
 export async function startInteractiveChat() {
@@ -27,6 +35,8 @@ export async function startInteractiveChat() {
   console.log("  /debug on       -> show model metadata after each answer");
   console.log("  /debug off      -> hide model metadata");
   console.log("  /mode genai      -> GenAI/LangChain/RAG mentor mode");
+  console.log("  /history        -> show chat history stats");
+  console.log("  /clear          -> clear chat history");
   console.log("  /config          -> show current model config");
   console.log("  exit             -> stop chat\n");
 
@@ -36,7 +46,7 @@ export async function startInteractiveChat() {
 
   // * Runtime prompt behavior mode.
   // * This affects system message, not model provider.
- let currentMode = "genai";
+  let currentMode = "genai";
 
   // * Create/recreate model with current model settings.
   function buildModel() {
@@ -201,21 +211,48 @@ export async function startInteractiveChat() {
       continue;
     }
 
+    // * Show current conversation history stats.
+    if (cleanInput === "/history") {
+      console.log("Conversation history stats:");
+      console.log(getConversationHistoryStats());
+
+      console.log("\nSaved messages:");
+      console.dir(getConversationHistory(), { depth: null });
+
+      continue;
+    }
+    // * Clear conversation history.
+    if (cleanInput === "/clear") {
+      clearConversationHistory();
+      console.log("Conversation history cleared.");
+      continue;
+    }
+
     try {
-      // * Convert user input into LangChain messages using current mode.
-      // * currentMode changes system prompt behavior.
-      const messages = buildBasicChatMessages(cleanInput, currentMode);
+      // * Get previous conversation history before current question.
+      const history = getConversationHistory();
+
+      // * Build messages using:
+      // * system prompt + previous history + current user input.
+      const messages = buildBasicChatMessages(cleanInput, currentMode, history);
 
       // * Run model call with debug wrapper.
-      // * This gives us AIMessage response + timing/metadata.
       const { response, debugInfo } = await runModelCallWithDebug({
         model,
         messages,
       });
 
+      // * Extract final answer.
+      const aiAnswer = response.content;
+
       // * Print final answer text.
       console.log("\nAI:");
-      console.log(response.content);
+      console.log(aiAnswer);
+
+      // * Save current turn into memory.
+      // ! Save only after successful model response.
+      addUserMessage(cleanInput);
+      addAIMessage(aiAnswer);
 
       // * Print debug info only when debug mode is ON.
       if (debugMode) {
@@ -226,6 +263,7 @@ export async function startInteractiveChat() {
           temperature: currentTemperature,
           maxTokens: currentMaxTokens ?? "none",
           mode: currentMode,
+          history: getConversationHistoryStats(),
           latencyMs: debugInfo.latencyMs,
           contentLength: debugInfo.contentLength,
           responseMetadata: debugInfo.responseMetadata,

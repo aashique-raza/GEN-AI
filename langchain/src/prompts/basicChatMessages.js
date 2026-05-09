@@ -1,21 +1,29 @@
 import { getSystemPromptByMode } from "./chatModes.js";
 
 // * This function builds messages for a basic chat model call.
-// * LangChain chat models expect messages in role/content format.
-// ! role must be "system" and "user".
-export function buildBasicChatMessages(userInput, mode = "tutor") {
+// * It includes:
+// * 1. system message
+// * 2. previous conversation history
+// * 3. latest user question
+// ! LangChain chat models understand role/content message format.
+export function buildBasicChatMessages(userInput, mode = "genai", history = []) {
   return [
     {
       role: "system",
 
       // * System prompt controls model behavior.
-      // * Example modes: tutor, strict, interviewer, concise.
       content: getSystemPromptByMode(mode),
     },
+
+    // * Previous conversation messages.
+    // * This lets the model understand follow-up questions like:
+    // * "isme retriever ka role kya hai?"
+    ...history,
+
     {
       role: "user",
 
-      // * User message is the actual question typed in CLI.
+      // * Latest user question.
       content: userInput,
     },
   ];
