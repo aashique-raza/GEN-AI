@@ -5,7 +5,8 @@
 // 2. Send generated messages to model
 // 3. Check if model answers only from context
 
-import { ragPromptTemplate } from "../../prompts/templates/ragPromptTemplate.js";
+// import { ragPromptTemplate } from "../../prompts/templates/ragPromptTemplate.js";
+import { ragPromptTemplate } from "../../prompts/templates/index.js";
 import { createChatModel } from "../../providers/chatProvider.js";
 
 // Create chat model using provider abstraction.
