@@ -22,7 +22,14 @@
     "prompt:history": "node src/llm/prompt-lab/runChatHistoryPromptTemplate.js",
     "prompt:fewshot": "node src/llm/prompt-lab/runFewShotPromptTemplate.js",
     "prompt:structured": "node src/llm/prompt-lab/runStructuredOutputPromptTemplate.js",
-    "prompt:partial": "node src/llm/prompt-lab/runPartialPromptTemplate.js"
+    "prompt:partial": "node src/llm/prompt-lab/runPartialPromptTemplate.js",
+    "lcel:serial": "node src/lcel/01-serial-chain.js",
+    "lcel:debug": "node src/lcel/02-debug-chain-steps.js",
+    "lcel:lambda": "node src/lcel/03-runnable-lambda.js",
+    "lcel:parallel": "node src/lcel/04-parallel-chain.js",
+    "lcel:prompt-input": "node src/lcel/05-parallel-prompt-input.js",
+    "lcel:conditional": "node src/lcel/06-conditional-chain.js",
+    "lcel:mini-rag": "node src/lcel/07-mini-rag-style-chain.js"
 },
   "keywords": [],
   "author": "",
