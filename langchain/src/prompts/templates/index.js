@@ -21,3 +21,8 @@ export { chatHistoryPromptTemplate } from "./chatHistoryPromptTemplate.js";
 export { fewShotTopicPromptTemplate } from "./fewShotPromptTemplate.js";
 
 export { structuredOutputPromptTemplate } from "./structuredOutputPromptTemplate.js";
+
+export {
+  baseExplanationPrompt,
+  createHinglishExplanationPrompt,
+} from "./partialPromptTemplate.js";
