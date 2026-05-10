@@ -5,18 +5,16 @@
   "main": "index.js",
   "types": "module",
   "scripts": {
-  "chat": "node src/index.js",
-  "dev": "nodemon src/index.js",
-  "rag:index": "node src/rag/indexPipeline.js",
-  "rag:index:dev": "nodemon src/rag/indexPipeline.js",
-  "rag:ask": "node src/rag/queryPipeline.js",
-  "rag:ask:dev": "nodemon src/rag/queryPipeline.js",
-  "prompt:simple": "node src/llm/prompt-lab/runSimplePromptTemplate.js",
+    "chat": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "rag:index": "node src/rag/indexPipeline.js",
+    "rag:index:dev": "nodemon src/rag/indexPipeline.js",
+    "rag:ask": "node src/rag/queryPipeline.js",
+    "rag:ask:dev": "nodemon src/rag/queryPipeline.js",
+    "prompt:simple": "node src/llm/prompt-lab/runSimplePromptTemplate.js",
     "prompt:simple-model": "node src/llm/prompt-lab/runPromptTemplateWithModel.js",
-
     "prompt:chat": "node src/llm/prompt-lab/runChatPromptTemplate.js",
     "prompt:chat-model": "node src/llm/prompt-lab/runChatPromptTemplateWithModel.js",
-
     "prompt:controlled": "node src/llm/prompt-lab/runControlledPromptTemplate.js",
     "prompt:rag": "node src/llm/prompt-lab/runRagPromptTemplate.js",
     "prompt:history": "node src/llm/prompt-lab/runChatHistoryPromptTemplate.js",
@@ -29,8 +27,9 @@
     "lcel:parallel": "node src/lcel/04-parallel-chain.js",
     "lcel:prompt-input": "node src/lcel/05-parallel-prompt-input.js",
     "lcel:conditional": "node src/lcel/06-conditional-chain.js",
+    "lcel:review-branch": "node src/lcel/06b-review-runnable-branch.js",
     "lcel:mini-rag": "node src/lcel/07-mini-rag-style-chain.js"
-},
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -40,7 +39,8 @@
     "@langchain/groq": "^1.2.0",
     "@langchain/textsplitters": "^1.0.1",
     "dotenv": "^17.4.2",
-    "langchain": "^1.4.0"
+    "langchain": "^1.4.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
