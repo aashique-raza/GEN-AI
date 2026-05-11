@@ -35,7 +35,14 @@
     "doc:folder-txt": "node src/documents/04-load-folder-txt-files.js",
     "doc:debug": "node src/documents/05-debug-documents.js",
     "doc:built-in-text": "node src/documents/06-langchain-text-loader.js",
-    "doc:pdf": "node src/documents/07-pdf-loader.js"
+    "doc:pdf": "node src/documents/07-pdf-loader.js",
+    "doc:pdf-quality": "node src/documents/08-pdf-quality-check.js",
+    "doc:pdf-pages": "node src/documents/09-pdf-page-wise-loader.js",
+    "doc:pdf-page-meta": "node src/documents/10-pdf-page-wise-metadata.js",
+    "doc:pdf-page-quality": "node src/documents/11-pdf-page-quality-report.js",
+    "doc:pdf-decision": "node src/documents/12-pdf-source-decision.js",
+    "doc:gated-pdf": "node src/documents/13-gated-pdf-loader.js",
+    "doc:reusable-txt": "node src/documents/14-reusable-txt-loader.js"
   },
   "keywords": [],
   "author": "",
