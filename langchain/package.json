@@ -49,7 +49,8 @@
     "doc:clean-pdf-text": "node src/documents/18-clean-converted-pdf-text.js",
     "doc:hindi-cleanup-review": "node src/documents/19-hindi-cleanup-review.js",
     "doc:english-pdf": "node src/documents/21-english-pdf-loader.js",
-    "doc:smart-pdf": "node src/documents/22-smart-pdf-loader-test.js"
+    "doc:smart-pdf": "node src/documents/22-smart-pdf-loader-test.js",
+    "doc:ocr-decision": "node src/documents/23-ocr-fallback-decision.js"
   },
   "keywords": [],
   "author": "",
