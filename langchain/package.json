@@ -42,13 +42,18 @@
     "doc:pdf-page-quality": "node src/documents/11-pdf-page-quality-report.js",
     "doc:pdf-decision": "node src/documents/12-pdf-source-decision.js",
     "doc:gated-pdf": "node src/documents/13-gated-pdf-loader.js",
-    "doc:reusable-txt": "node src/documents/14-reusable-txt-loader.js"
+    "doc:reusable-txt": "node src/documents/14-reusable-txt-loader.js",
+    "doc:krutidev-test": "node src/documents/15-krutidev-conversion-test.js",
+    "doc:pdf-krutidev": "node src/documents/16-pdf-krutidev-page-loader.js",
+    "doc:converted-pdf-quality": "node src/documents/17-converted-pdf-quality-check.js",
+    "doc:clean-pdf-text": "node src/documents/18-clean-converted-pdf-text.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@anthro-ai/krutidev-unicode": "^0.1.0",
     "@langchain/classic": "^1.0.32",
     "@langchain/community": "^1.1.28",
     "@langchain/core": "^1.1.45",
