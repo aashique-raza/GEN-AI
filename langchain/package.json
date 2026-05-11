@@ -32,7 +32,8 @@
     "doc:basics": "node src/documents/01-document-basics.js",
     "doc:txt-loader": "node src/documents/02-custom-txt-loader.js",
     "doc:multi-txt": "node src/documents/03-load-multiple-txt-files.js",
-    "doc:folder-txt": "node src/documents/04-load-folder-txt-files.js"
+    "doc:folder-txt": "node src/documents/04-load-folder-txt-files.js",
+    "doc:debug": "node src/documents/05-debug-documents.js"
   },
   "keywords": [],
   "author": "",
