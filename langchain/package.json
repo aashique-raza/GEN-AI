@@ -29,7 +29,8 @@
     "lcel:conditional": "node src/lcel/06-conditional-chain.js",
     "lcel:review-branch": "node src/lcel/06b-review-runnable-branch.js",
     "lcel:mini-rag": "node src/lcel/07-mini-rag-style-chain.js",
-    "doc:basics": "node src/documents/01-document-basics.js"
+    "doc:basics": "node src/documents/01-document-basics.js",
+    "doc:txt-loader": "node src/documents/02-custom-txt-loader.js"
   },
   "keywords": [],
   "author": "",
