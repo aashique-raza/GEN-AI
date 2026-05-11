@@ -30,7 +30,8 @@
     "lcel:review-branch": "node src/lcel/06b-review-runnable-branch.js",
     "lcel:mini-rag": "node src/lcel/07-mini-rag-style-chain.js",
     "doc:basics": "node src/documents/01-document-basics.js",
-    "doc:txt-loader": "node src/documents/02-custom-txt-loader.js"
+    "doc:txt-loader": "node src/documents/02-custom-txt-loader.js",
+    "doc:multi-txt": "node src/documents/03-load-multiple-txt-files.js"
   },
   "keywords": [],
   "author": "",
