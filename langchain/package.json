@@ -34,7 +34,8 @@
     "doc:multi-txt": "node src/documents/03-load-multiple-txt-files.js",
     "doc:folder-txt": "node src/documents/04-load-folder-txt-files.js",
     "doc:debug": "node src/documents/05-debug-documents.js",
-    "doc:built-in-text": "node src/documents/06-langchain-text-loader.js"
+    "doc:built-in-text": "node src/documents/06-langchain-text-loader.js",
+    "doc:pdf": "node src/documents/07-pdf-loader.js"
   },
   "keywords": [],
   "author": "",
@@ -42,11 +43,13 @@
   "type": "module",
   "dependencies": {
     "@langchain/classic": "^1.0.32",
+    "@langchain/community": "^1.1.28",
     "@langchain/core": "^1.1.45",
     "@langchain/groq": "^1.2.0",
     "@langchain/textsplitters": "^1.0.1",
     "dotenv": "^17.4.2",
     "langchain": "^1.4.0",
+    "pdf-parse": "^2.4.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {
