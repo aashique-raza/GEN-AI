@@ -46,7 +46,9 @@
     "doc:krutidev-test": "node src/documents/15-krutidev-conversion-test.js",
     "doc:pdf-krutidev": "node src/documents/16-pdf-krutidev-page-loader.js",
     "doc:converted-pdf-quality": "node src/documents/17-converted-pdf-quality-check.js",
-    "doc:clean-pdf-text": "node src/documents/18-clean-converted-pdf-text.js"
+    "doc:clean-pdf-text": "node src/documents/18-clean-converted-pdf-text.js",
+    "doc:hindi-cleanup-review": "node src/documents/19-hindi-cleanup-review.js",
+    "doc:english-pdf": "node src/documents/21-english-pdf-loader.js"
   },
   "keywords": [],
   "author": "",
