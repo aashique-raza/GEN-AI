@@ -33,13 +33,15 @@
     "doc:txt-loader": "node src/documents/02-custom-txt-loader.js",
     "doc:multi-txt": "node src/documents/03-load-multiple-txt-files.js",
     "doc:folder-txt": "node src/documents/04-load-folder-txt-files.js",
-    "doc:debug": "node src/documents/05-debug-documents.js"
+    "doc:debug": "node src/documents/05-debug-documents.js",
+    "doc:built-in-text": "node src/documents/06-langchain-text-loader.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@langchain/classic": "^1.0.32",
     "@langchain/core": "^1.1.45",
     "@langchain/groq": "^1.2.0",
     "@langchain/textsplitters": "^1.0.1",
